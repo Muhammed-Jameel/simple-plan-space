@@ -855,13 +855,25 @@ function Editor({ project, onBack, st }) {
       y: (e.clientY - r.top) * (cvh / r.height),
     };
   };
-  const selRoom = (id) => {
+  // Light select: just mark the ID, don't open panel (avoids layout reflow during drag)
+  const selRoomLight = (id) => {
+    setSelId(id);
+    setSelCat("room");
+    setPan("props");
+  };
+  const selElLight = (id) => {
+    setSelId(id);
+    setSelCat("element");
+    setPan("props");
+  };
+  // Full select: also open mobile panel (called on tap/pointerup)
+  const selRoomFull = (id) => {
     setSelId(id);
     setSelCat("room");
     setPan("props");
     if (mob) setPanO(true);
   };
-  const selEl = (id) => {
+  const selElFull = (id) => {
     setSelId(id);
     setSelCat("element");
     setPan("props");
@@ -878,11 +890,18 @@ function Editor({ project, onBack, st }) {
   const onRD = (e, id) => {
     if (tool !== "select" || e.button !== 0) return;
     e.preventDefault();
-    selRoom(id);
+    selRoomLight(id);
     const pt = gPt(e),
       rm = rms.find((r) => r.id === id);
     if (!rm) return;
-    dragRef.current = { m: "move", id, c: "room", sp: pt, sr: { ...rm } };
+    dragRef.current = {
+      m: "move",
+      id,
+      c: "room",
+      sp: pt,
+      sr: { ...rm },
+      moved: false,
+    };
     setDrag(dragRef.current);
     svgR.current.setPointerCapture(e.pointerId);
   };
@@ -892,18 +911,33 @@ function Editor({ project, onBack, st }) {
     const pt = gPt(e),
       rm = rms.find((r) => r.id === id);
     if (!rm) return;
-    dragRef.current = { m: "resize", id, c: "room", h, sp: pt, sr: { ...rm } };
+    dragRef.current = {
+      m: "resize",
+      id,
+      c: "room",
+      h,
+      sp: pt,
+      sr: { ...rm },
+      moved: false,
+    };
     setDrag(dragRef.current);
     svgR.current.setPointerCapture(e.pointerId);
   };
   const onED = (e, id) => {
     if (tool !== "select" || e.button !== 0) return;
     e.preventDefault();
-    selEl(id);
+    selElLight(id);
     const pt = gPt(e),
       el = els.find((x) => x.id === id);
     if (!el) return;
-    dragRef.current = { m: "move", id, c: "el", sp: pt, sr: { ...el } };
+    dragRef.current = {
+      m: "move",
+      id,
+      c: "el",
+      sp: pt,
+      sr: { ...el },
+      moved: false,
+    };
     setDrag(dragRef.current);
     svgR.current.setPointerCapture(e.pointerId);
   };
@@ -911,6 +945,7 @@ function Editor({ project, onBack, st }) {
   const onPM = (e) => {
     const d = dragRef.current;
     if (!d) return;
+    d.moved = true;
     // Canvas pan
     if (d.c === "canvas") {
       if (wrapR.current) {
@@ -979,25 +1014,35 @@ function Editor({ project, onBack, st }) {
   };
   const onPU = () => {
     const d = dragRef.current;
-    if (d && dragPos) {
-      // Commit final position to project
-      if (d.c === "room") {
-        upd((p) => {
-          const rm = p.floors[fIdx].rooms.find((r) => r.id === d.id);
-          if (!rm) return;
-          rm.x = dragPos.x;
-          rm.y = dragPos.y;
-          if (dragPos.w != null) rm.w = dragPos.w;
-          if (dragPos.h != null) rm.h = dragPos.h;
-        });
-      }
-      if (d.c === "el") {
-        upd((p) => {
-          const el = p.floors[fIdx].elements.find((x) => x.id === d.id);
-          if (!el) return;
-          el.x = dragPos.x;
-          el.y = dragPos.y;
-        });
+    if (d) {
+      if (d.moved && dragPos) {
+        // Was a drag — commit final position
+        if (d.c === "room") {
+          upd((p) => {
+            const rm = p.floors[fIdx].rooms.find((r) => r.id === d.id);
+            if (!rm) return;
+            rm.x = dragPos.x;
+            rm.y = dragPos.y;
+            if (dragPos.w != null) rm.w = dragPos.w;
+            if (dragPos.h != null) rm.h = dragPos.h;
+          });
+        }
+        if (d.c === "el") {
+          upd((p) => {
+            const el = p.floors[fIdx].elements.find((x) => x.id === d.id);
+            if (!el) return;
+            el.x = dragPos.x;
+            el.y = dragPos.y;
+          });
+        }
+      } else {
+        // Was a tap (no movement) — now open the panel
+        if (d.c === "room") {
+          selRoomFull(d.id);
+        }
+        if (d.c === "el") {
+          selElFull(d.id);
+        }
       }
     }
     dragRef.current = null;
@@ -1054,7 +1099,7 @@ function Editor({ project, onBack, st }) {
       upd((p) => {
         p.floors[fIdx].elements.push(ne);
       });
-      selEl(id);
+      selElFull(id);
       return;
     }
     if (tool === "column") {
@@ -1064,7 +1109,7 @@ function Editor({ project, onBack, st }) {
       upd((p) => {
         p.floors[fIdx].elements.push(ne);
       });
-      selEl(id);
+      selElFull(id);
       return;
     }
     // In select mode, touching background starts canvas pan
@@ -1098,7 +1143,7 @@ function Editor({ project, onBack, st }) {
         h: 3,
       });
     });
-    selRoom(id);
+    selRoomFull(id);
   };
   const dupRm = () => {
     if (!sRoom) return;
@@ -1112,7 +1157,7 @@ function Editor({ project, onBack, st }) {
         y: Math.min(sRoom.y + 1, ph - sRoom.h),
       });
     });
-    selRoom(id);
+    selRoomFull(id);
   };
   const delSel = () => {
     if (!selId) return;
@@ -1669,7 +1714,7 @@ function Editor({ project, onBack, st }) {
           <div
             key={rm.id}
             className="fps-li"
-            onClick={() => selRoom(rm.id)}
+            onClick={() => selRoomFull(rm.id)}
             style={{
               display: "flex",
               alignItems: "center",
@@ -1752,7 +1797,7 @@ function Editor({ project, onBack, st }) {
               <div
                 key={el.id}
                 className="fps-li"
-                onClick={() => selEl(el.id)}
+                onClick={() => selElFull(el.id)}
                 style={{
                   display: "flex",
                   alignItems: "center",
