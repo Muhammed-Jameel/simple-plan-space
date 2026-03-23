@@ -770,10 +770,12 @@ function Editor({ project, onBack, st }) {
   const [showAF, setShowAF] = useState(false);
   const [nfn, setNfn] = useState("");
   const [guides, setGuides] = useState([]);
+  const [dragPos, setDragPos] = useState(null); // lightweight live position during drag
   const svgR = useRef(null);
   const stR = useRef(null);
   const wrapR = useRef(null);
   const mob = useMob();
+  const dragRef = useRef(null); // stable ref for drag state (no re-render on update)
 
   useEffect(() => {
     injectCSS();
@@ -880,7 +882,8 @@ function Editor({ project, onBack, st }) {
     const pt = gPt(e),
       rm = rms.find((r) => r.id === id);
     if (!rm) return;
-    setDrag({ m: "move", id, c: "room", sp: pt, sr: { ...rm } });
+    dragRef.current = { m: "move", id, c: "room", sp: pt, sr: { ...rm } };
+    setDrag(dragRef.current);
     svgR.current.setPointerCapture(e.pointerId);
   };
   const onHD = (e, id, h) => {
@@ -889,7 +892,8 @@ function Editor({ project, onBack, st }) {
     const pt = gPt(e),
       rm = rms.find((r) => r.id === id);
     if (!rm) return;
-    setDrag({ m: "resize", id, c: "room", h, sp: pt, sr: { ...rm } });
+    dragRef.current = { m: "resize", id, c: "room", h, sp: pt, sr: { ...rm } };
+    setDrag(dragRef.current);
     svgR.current.setPointerCapture(e.pointerId);
   };
   const onED = (e, id) => {
@@ -899,34 +903,34 @@ function Editor({ project, onBack, st }) {
     const pt = gPt(e),
       el = els.find((x) => x.id === id);
     if (!el) return;
-    setDrag({ m: "move", id, c: "el", sp: pt, sr: { ...el } });
+    dragRef.current = { m: "move", id, c: "el", sp: pt, sr: { ...el } };
+    setDrag(dragRef.current);
     svgR.current.setPointerCapture(e.pointerId);
   };
 
   const onPM = (e) => {
-    if (!drag) return;
-    // Canvas pan mode
-    if (drag.c === "canvas") {
+    const d = dragRef.current;
+    if (!d) return;
+    // Canvas pan
+    if (d.c === "canvas") {
       if (wrapR.current) {
-        wrapR.current.scrollLeft = drag.sr.sl - (e.clientX - drag.sp.x);
-        wrapR.current.scrollTop = drag.sr.st - (e.clientY - drag.sp.y);
+        wrapR.current.scrollLeft = d.sr.sl - (e.clientX - d.sp.x);
+        wrapR.current.scrollTop = d.sr.st - (e.clientY - d.sp.y);
       }
       return;
     }
     const pt = gPt(e),
-      dx = (pt.x - drag.sp.x) / sc,
-      dy = (pt.y - drag.sp.y) / sc,
-      sr = drag.sr;
-    if (drag.c === "room") {
-      const n = JSON.parse(JSON.stringify(proj));
-      const rm = n.floors[fIdx].rooms.find((r) => r.id === drag.id);
-      if (!rm) return;
-      if (drag.m === "move") {
-        rm.x = Math.max(0, Math.min(pw - rm.w, snpM(sr.x + dx)));
-        rm.y = Math.max(0, Math.min(ph - rm.h, snpM(sr.y + dy)));
-        setGuides(getSnapGuides(rms, rm.id, rm.x, rm.y, rm.w, rm.h, pw, ph));
+      dx = (pt.x - d.sp.x) / sc,
+      dy = (pt.y - d.sp.y) / sc,
+      sr = d.sr;
+    if (d.c === "room") {
+      if (d.m === "move") {
+        const nx = Math.max(0, Math.min(pw - sr.w, snpM(sr.x + dx))),
+          ny = Math.max(0, Math.min(ph - sr.h, snpM(sr.y + dy)));
+        setDragPos({ id: d.id, x: nx, y: ny, w: sr.w, h: sr.h });
+        setGuides(getSnapGuides(rms, d.id, nx, ny, sr.w, sr.h, pw, ph));
       } else {
-        const h = drag.h;
+        const h = d.h;
         let nx = sr.x,
           ny = sr.y,
           nw = sr.w,
@@ -953,43 +957,52 @@ function Editor({ project, onBack, st }) {
         ny = Math.max(0, ny);
         if (nx + nw > pw) nw = pw - nx;
         if (ny + nh > ph) nh = ph - ny;
-        rm.x = nx;
-        rm.y = ny;
-        rm.w = nw;
-        rm.h = nh;
-        setGuides(getSnapGuides(rms, rm.id, rm.x, rm.y, rm.w, rm.h, pw, ph));
+        setDragPos({ id: d.id, x: nx, y: ny, w: nw, h: nh });
+        setGuides(getSnapGuides(rms, d.id, nx, ny, nw, nh, pw, ph));
       }
-      n.floors.forEach((f) => {
-        if (!f.elements) f.elements = [];
-        if (!f.columns) f.columns = [];
-      });
-      autoSave(n);
-      pushH(n);
     }
-    if (drag.c === "el") {
-      const n = JSON.parse(JSON.stringify(proj));
-      const el = n.floors[fIdx].elements.find((x) => x.id === drag.id);
-      if (!el) return;
+    if (d.c === "el") {
+      const el = d.sr;
+      let nx, ny;
       if (el.type === "column") {
-        el.x = snpF(Math.max(0, Math.min(pw, sr.x + dx)));
-        el.y = snpF(Math.max(0, Math.min(ph, sr.y + dy)));
+        nx = snpF(Math.max(0, Math.min(pw, sr.x + dx)));
+        ny = snpF(Math.max(0, Math.min(ph, sr.y + dy)));
       } else if (el.orient === "h") {
-        el.x = snpF(Math.max(0, Math.min(pw - el.width, sr.x + dx)));
-        el.y = snpF(Math.max(0, Math.min(ph, sr.y + dy)));
+        nx = snpF(Math.max(0, Math.min(pw - (el.width || 1), sr.x + dx)));
+        ny = snpF(Math.max(0, Math.min(ph, sr.y + dy)));
       } else {
-        el.x = snpF(Math.max(0, Math.min(pw, sr.x + dx)));
-        el.y = snpF(Math.max(0, Math.min(ph - el.width, sr.y + dy)));
+        nx = snpF(Math.max(0, Math.min(pw, sr.x + dx)));
+        ny = snpF(Math.max(0, Math.min(ph - (el.width || 1), sr.y + dy)));
       }
-      n.floors.forEach((f) => {
-        if (!f.elements) f.elements = [];
-        if (!f.columns) f.columns = [];
-      });
-      autoSave(n);
-      pushH(n);
+      setDragPos({ id: d.id, x: nx, y: ny });
     }
   };
   const onPU = () => {
+    const d = dragRef.current;
+    if (d && dragPos) {
+      // Commit final position to project
+      if (d.c === "room") {
+        upd((p) => {
+          const rm = p.floors[fIdx].rooms.find((r) => r.id === d.id);
+          if (!rm) return;
+          rm.x = dragPos.x;
+          rm.y = dragPos.y;
+          if (dragPos.w != null) rm.w = dragPos.w;
+          if (dragPos.h != null) rm.h = dragPos.h;
+        });
+      }
+      if (d.c === "el") {
+        upd((p) => {
+          const el = p.floors[fIdx].elements.find((x) => x.id === d.id);
+          if (!el) return;
+          el.x = dragPos.x;
+          el.y = dragPos.y;
+        });
+      }
+    }
+    dragRef.current = null;
     setDrag(null);
+    setDragPos(null);
     setGuides([]);
   };
 
@@ -1060,12 +1073,14 @@ function Editor({ project, onBack, st }) {
     if (wrapR.current) {
       e.preventDefault();
       const wr = wrapR.current;
-      setDrag({
+      const dragData = {
         m: "pan",
         c: "canvas",
         sp: { x: e.clientX, y: e.clientY },
         sr: { sl: wr.scrollLeft, st: wr.scrollTop },
-      });
+      };
+      dragRef.current = dragData;
+      setDrag(dragData);
       svgR.current.setPointerCapture(e.pointerId);
     }
   };
@@ -2515,28 +2530,52 @@ function Editor({ project, onBack, st }) {
               height={ph * sc}
               fill="url(#gM)"
             />
-            {rms.map((rm) => (
-              <RoomSVG
-                key={rm.id}
-                rm={rm}
-                sc={sc}
-                sel={rm.id === selId && selCat === "room"}
-                onPD={onRD}
-              />
-            ))}
-            {rms.map((rm) => (
-              <rect
-                key={"w" + rm.id}
-                x={PAD + rm.x * sc}
-                y={PAD + rm.y * sc}
-                width={rm.w * sc}
-                height={rm.h * sc}
-                fill="none"
-                stroke="#4A3860"
-                strokeWidth={wp}
-                pointerEvents="none"
-              />
-            ))}
+            {rms.map((rm) => {
+              const dp =
+                dragPos && dragPos.id === rm.id
+                  ? {
+                      ...rm,
+                      x: dragPos.x,
+                      y: dragPos.y,
+                      ...(dragPos.w != null ? { w: dragPos.w } : {}),
+                      ...(dragPos.h != null ? { h: dragPos.h } : {}),
+                    }
+                  : rm;
+              return (
+                <RoomSVG
+                  key={rm.id}
+                  rm={dp}
+                  sc={sc}
+                  sel={rm.id === selId && selCat === "room"}
+                  onPD={onRD}
+                />
+              );
+            })}
+            {rms.map((rm) => {
+              const dp =
+                dragPos && dragPos.id === rm.id
+                  ? {
+                      ...rm,
+                      x: dragPos.x,
+                      y: dragPos.y,
+                      ...(dragPos.w != null ? { w: dragPos.w } : {}),
+                      ...(dragPos.h != null ? { h: dragPos.h } : {}),
+                    }
+                  : rm;
+              return (
+                <rect
+                  key={"w" + rm.id}
+                  x={PAD + dp.x * sc}
+                  y={PAD + dp.y * sc}
+                  width={dp.w * sc}
+                  height={dp.h * sc}
+                  fill="none"
+                  stroke="#4A3860"
+                  strokeWidth={wp}
+                  pointerEvents="none"
+                />
+              );
+            })}
             <rect
               x={PAD}
               y={PAD}
@@ -2576,11 +2615,15 @@ function Editor({ project, onBack, st }) {
               ),
             )}
             {/* Elements */}
-            {els.map((el) =>
-              el.type === "door" ? (
+            {els.map((el) => {
+              const dp =
+                dragPos && dragPos.id === el.id
+                  ? { ...el, x: dragPos.x, y: dragPos.y }
+                  : el;
+              return el.type === "door" ? (
                 <DoorSVG
                   key={el.id}
-                  el={el}
+                  el={dp}
                   sc={sc}
                   sel={el.id === selId && selCat === "element"}
                   onPD={onED}
@@ -2589,7 +2632,7 @@ function Editor({ project, onBack, st }) {
               ) : el.type === "window" ? (
                 <WinSVG
                   key={el.id}
-                  el={el}
+                  el={dp}
                   sc={sc}
                   sel={el.id === selId && selCat === "element"}
                   onPD={onED}
@@ -2598,14 +2641,31 @@ function Editor({ project, onBack, st }) {
               ) : el.type === "column" ? (
                 <ColSVG
                   key={el.id}
-                  el={el}
+                  el={dp}
                   sc={sc}
                   sel={el.id === selId && selCat === "element"}
                   onPD={onED}
                 />
-              ) : null,
+              ) : null;
+            })}
+            {sRoom && (
+              <Handles
+                rm={
+                  dragPos && dragPos.id === sRoom.id
+                    ? {
+                        ...sRoom,
+                        x: dragPos.x,
+                        y: dragPos.y,
+                        ...(dragPos.w != null ? { w: dragPos.w } : {}),
+                        ...(dragPos.h != null ? { h: dragPos.h } : {}),
+                      }
+                    : sRoom
+                }
+                scale={sc}
+                onHD={onHD}
+                mob={mob}
+              />
             )}
-            {sRoom && <Handles rm={sRoom} scale={sc} onHD={onHD} mob={mob} />}
             <text
               x={PAD + (pw * sc) / 2}
               y={PAD + ph * sc + 22}
