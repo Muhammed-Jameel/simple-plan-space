@@ -1,21 +1,66 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="description" content="Floor Plan Studio — Design, edit, and save house floor plans" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <title>Floor Plan Studio</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #17141E; font-family: 'Outfit', sans-serif; }
-  </style>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.jsx"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Simple Plan Space — Free Floor Plan Designer in Your Browser</title>
+    <meta
+      name="description"
+      content="Design house floor plans for free in your browser. Drag and drop rooms, place doors and windows, manage multiple floors, export to PDF. No downloads, no signup required. Open source."
+    />
+    <meta
+      name="keywords"
+      content="floor plan designer, floor plan tool, house plan, room layout, free floor plan, open source, drag and drop, architectural design, home design"
+    />
+    <meta name="author" content="Mohammed Jameel" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://simpleplan.space" />
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="Simple Plan Space — Free Floor Plan Designer"
+    />
+    <meta
+      property="og:description"
+      content="Design house floor plans in your browser. Drag rooms, place doors and windows, manage floors. Free, open source, no signup required."
+    />
+    <meta property="og:url" content="https://simpleplan.space" />
+    <meta property="og:site_name" content="Simple Plan Space" />
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Simple Plan Space — Free Floor Plan Designer"
+    />
+    <meta
+      name="twitter:description"
+      content="Design house floor plans in your browser. Free, open source, no signup required."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: #17141e;
+        font-family: "Outfit", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

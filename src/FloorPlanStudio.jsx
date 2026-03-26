@@ -2894,37 +2894,117 @@ function Library({ onOpen, projects, onNew, onDelete, loading, onSupport }) {
           padding: mob ? "24px 14px" : "40px 20px",
         }}
       >
+        {/* Hero section */}
         <div
           className="fps-fade"
-          style={{ textAlign: "center", marginBottom: mob ? 24 : 40 }}
+          style={{
+            textAlign: "center",
+            marginBottom: mob ? 30 : 50,
+            padding: mob ? "20px 0" : "40px 0",
+          }}
         >
           <h1
             style={{
               fontFamily: "'Playfair Display', serif",
-              fontSize: mob ? 28 : 42,
+              fontSize: mob ? 32 : 52,
               fontWeight: 400,
-              letterSpacing: 2,
+              letterSpacing: 1,
+              lineHeight: 1.2,
+              marginBottom: 12,
             }}
           >
-            Simple Plan{" "}
-            <span style={{ color: "#845EC2", fontWeight: 600 }}>Space</span>
+            Design Floor Plans{" "}
+            <span style={{ color: "#845EC2", fontWeight: 600 }}>
+              in Your Browser
+            </span>
           </h1>
           <p
             style={{
-              fontSize: mob ? 11 : 13,
-              color: "#8A80A0",
-              marginTop: 4,
-              letterSpacing: 2,
+              fontSize: mob ? 14 : 18,
+              color: "#B0A8C4",
+              lineHeight: 1.6,
+              maxWidth: 600,
+              margin: "0 auto 24px",
             }}
           >
-            DESIGN | EDIT | SAVE
+            Drag rooms, place doors and windows, manage multiple floors — free,
+            no downloads, no signup required.
           </p>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: 12,
+              flexWrap: "wrap",
+              marginBottom: 20,
+            }}
+          >
+            <button
+              className="fps-btn"
+              onClick={() => setShowNew(true)}
+              style={{
+                ...bS,
+                background: "#845EC2",
+                color: "#fff",
+                padding: mob ? "14px 28px" : "16px 36px",
+                fontSize: mob ? 14 : 16,
+                borderRadius: 8,
+                fontWeight: 600,
+              }}
+            >
+              Start Designing Now
+            </button>
+            <a
+              href="https://github.com/Muhammed-Jameel/simple-plan-space"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="fps-btn"
+              style={{
+                ...bS,
+                background: "transparent",
+                border: "1px solid #3A3548",
+                color: "#B0A8C4",
+                padding: mob ? "14px 20px" : "16px 28px",
+                fontSize: mob ? 13 : 14,
+                borderRadius: 8,
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+              </svg>
+              View on GitHub
+            </a>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: mob ? 16 : 28,
+              flexWrap: "wrap",
+              fontSize: mob ? 11 : 13,
+              color: "#8A80A0",
+            }}
+          >
+            <span>✓ 100% Free</span>
+            <span>✓ Open Source</span>
+            <span>✓ Works on Mobile</span>
+            <span>✓ No Account Needed</span>
+          </div>
           <div
             style={{
               width: 50,
               height: 1.5,
               background: "#845EC2",
-              margin: "14px auto 0",
+              margin: "24px auto 0",
             }}
           />
         </div>
@@ -3610,7 +3690,7 @@ function SupportPage({ onBack }) {
             </p>
           </div>
 
-          {/* RIGHT: Card / Wise */}
+          {/* RIGHT: Other Ways to Help */}
           <div style={{ flex: 1, width: "100%" }}>
             <div
               style={{
@@ -3633,10 +3713,9 @@ function SupportPage({ onBack }) {
                 stroke="#00C9A7"
                 strokeWidth="2"
               >
-                <rect x="1" y="4" width="22" height="16" rx="2" />
-                <line x1="1" y1="10" x2="23" y2="10" />
+                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
               </svg>
-              Support with Card
+              Other Ways to Help
             </div>
 
             <div
@@ -3669,7 +3748,7 @@ function SupportPage({ onBack }) {
                   stroke="#C493FF"
                   strokeWidth="2"
                 >
-                  <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                 </svg>
               </div>
               <h3
@@ -3680,7 +3759,7 @@ function SupportPage({ onBack }) {
                   marginBottom: 8,
                 }}
               >
-                Quick Pay with Wise
+                Upvote Us
               </h3>
               <p
                 style={{
@@ -3690,47 +3769,74 @@ function SupportPage({ onBack }) {
                   lineHeight: 1.6,
                 }}
               >
-                Pay any amount with your credit or debit card. No account
-                needed. Processed securely through Wise.
+                A quick upvote helps us reach more people and makes a huge
+                difference for a solo developer.
               </p>
-              <a
-                href="https://wise.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="fps-btn"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  background: "#845EC2",
-                  color: "#fff",
-                  padding: "14px 32px",
-                  fontSize: 15,
-                  fontWeight: 500,
-                  textDecoration: "none",
-                  borderRadius: 8,
-                  border: "none",
-                  fontFamily: "Outfit",
-                  cursor: "pointer",
-                  width: "100%",
-                }}
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: 10 }}
               >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
+                <a
+                  href="https://www.producthunt.com/products/simple-plan-space?utm_source=other&utm_medium=social"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="fps-btn"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 10,
+                    background: "#DA5126",
+                    color: "#fff",
+                    padding: "14px 20px",
+                    fontSize: 14,
+                    textDecoration: "none",
+                    borderRadius: 8,
+                    border: "none",
+                    fontFamily: "Outfit",
+                    cursor: "pointer",
+                    fontWeight: 500,
+                  }}
                 >
-                  <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-                </svg>
-                Support with Card
-              </a>
-              <p style={{ fontSize: 10, color: "#4A4558", marginTop: 10 }}>
-                Visa, Mastercard, Apple Pay, Google Pay accepted
-              </p>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+                    <path d="M13.5 2h-3a1.5 1.5 0 00-1.5 1.5v17a1.5 1.5 0 001.5 1.5h3a7.5 7.5 0 000-15h-3V2z M12 9h1.5a4.5 4.5 0 010 9H12V9z" />
+                  </svg>
+                  Upvote on Product Hunt
+                </a>
+                <a
+                  href="https://www.nxgntools.com/tools/simple-plan-space"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="fps-btn"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 10,
+                    background: "transparent",
+                    border: "1px solid #3A3548",
+                    color: "#B0A8C4",
+                    padding: "14px 20px",
+                    fontSize: 14,
+                    textDecoration: "none",
+                    borderRadius: 8,
+                    fontFamily: "Outfit",
+                    cursor: "pointer",
+                    fontWeight: 500,
+                  }}
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                  Upvote on NextGen Tools
+                </a>
+              </div>
             </div>
 
             <div
@@ -3750,7 +3856,7 @@ function SupportPage({ onBack }) {
                   marginBottom: 8,
                 }}
               >
-                Other Ways to Help
+                Spread the Word
               </h3>
               <p
                 style={{
