@@ -882,6 +882,22 @@ function Editor({ project, onBack, st }) {
     setDragPos(null);
     setGuides([]);
   }, []);
+  const clearUiDragState = useCallback(
+    (e) => {
+      if (!dragRef.current && pidRef.current == null) return;
+      if (wrapR.current?.contains(e.target)) return;
+      pidRef.current = null;
+      resetDrag();
+    },
+    [resetDrag],
+  );
+  const handleUiPointerDownCapture = useCallback(
+    (e) => {
+      clearUiDragState(e);
+      e.stopPropagation();
+    },
+    [clearUiDragState],
+  );
   const sRoom = selCat === "room" ? rms.find((r) => r.id === selId) : null;
   const sEl = selCat === "element" ? els.find((e) => e.id === selId) : null;
 
@@ -1419,6 +1435,7 @@ function Editor({ project, onBack, st }) {
               </div>
             </div>
             <button
+              type="button"
               className="fps-btn"
               onClick={delSel}
               style={{
@@ -1542,6 +1559,7 @@ function Editor({ project, onBack, st }) {
               {["h", "v"].map((o) => (
                 <button
                   key={o}
+                  type="button"
                   className="fps-btn"
                   onClick={() =>
                     upd((p) => {
@@ -1566,6 +1584,7 @@ function Editor({ project, onBack, st }) {
             </div>
           </div>
           <button
+            type="button"
             className="fps-btn"
             onClick={delSel}
             style={{
@@ -1693,6 +1712,7 @@ function Editor({ project, onBack, st }) {
           </div>
           <div style={{ display: "flex", gap: 6 }}>
             <button
+              type="button"
               className="fps-btn"
               onClick={dupRm}
               style={{
@@ -1705,6 +1725,7 @@ function Editor({ project, onBack, st }) {
               Duplicate
             </button>
             <button
+              type="button"
               className="fps-btn"
               onClick={delSel}
               style={{
@@ -1795,6 +1816,7 @@ function Editor({ project, onBack, st }) {
         ))}
       </div>
       <button
+        type="button"
         className="fps-btn"
         onClick={addRm}
         style={{
@@ -2080,6 +2102,7 @@ function Editor({ project, onBack, st }) {
             {["metric", "imperial"].map((u) => (
               <button
                 key={u}
+                type="button"
                 className="fps-btn"
                 onClick={() =>
                   upd((p) => {
@@ -2164,6 +2187,7 @@ function Editor({ project, onBack, st }) {
         </div>
         <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
           <button
+            type="button"
             className="fps-btn"
             onClick={expJ}
             style={{
@@ -2177,6 +2201,7 @@ function Editor({ project, onBack, st }) {
             Export JSON
           </button>
           <button
+            type="button"
             className="fps-btn"
             onClick={printPlan}
             style={{
@@ -2303,6 +2328,7 @@ function Editor({ project, onBack, st }) {
       {/* Top bar */}
       <div
         className="no-print"
+        onPointerDownCapture={handleUiPointerDownCapture}
         style={{
           display: "flex",
           alignItems: "center",
@@ -2314,6 +2340,7 @@ function Editor({ project, onBack, st }) {
         }}
       >
         <button
+          type="button"
           className="fps-btn"
           onClick={onBack}
           style={{
@@ -2346,6 +2373,7 @@ function Editor({ project, onBack, st }) {
           </span>
         </div>
         <button
+          type="button"
           className="fps-btn"
           onClick={undo}
           disabled={!canUndo}
@@ -2362,6 +2390,7 @@ function Editor({ project, onBack, st }) {
           &#8630;
         </button>
         <button
+          type="button"
           className="fps-btn"
           onClick={redo}
           disabled={!canRedo}
@@ -2381,6 +2410,7 @@ function Editor({ project, onBack, st }) {
       {/* Toolbar */}
       <div
         className="no-print"
+        onPointerDownCapture={handleUiPointerDownCapture}
         style={{
           display: "flex",
           alignItems: "center",
@@ -2393,6 +2423,7 @@ function Editor({ project, onBack, st }) {
         {tools.map((t) => (
           <button
             key={t.k}
+            type="button"
             className="fps-btn"
             onClick={() => {
               setTool(t.k);
@@ -2426,6 +2457,7 @@ function Editor({ project, onBack, st }) {
       {/* Floor tabs */}
       <div
         className="no-print"
+        onPointerDownCapture={handleUiPointerDownCapture}
         style={{
           display: "flex",
           alignItems: "center",
@@ -2439,6 +2471,7 @@ function Editor({ project, onBack, st }) {
         {proj.floors.map((f, i) => (
           <button
             key={f.id}
+            type="button"
             className="fps-tab fps-btn"
             onClick={() => {
               setFIdx(i);
@@ -2464,6 +2497,7 @@ function Editor({ project, onBack, st }) {
           </button>
         ))}
         <button
+          type="button"
           className="fps-btn"
           onClick={copyFl}
           style={{
@@ -2491,6 +2525,7 @@ function Editor({ project, onBack, st }) {
               style={{ ...iS, width: 80, padding: "4px 6px", fontSize: 10 }}
             />
             <button
+              type="button"
               className="fps-btn"
               onClick={addFl}
               style={{
@@ -2506,6 +2541,7 @@ function Editor({ project, onBack, st }) {
           </div>
         ) : (
           <button
+            type="button"
             className="fps-btn"
             onClick={() => setShowAF(true)}
             style={{
@@ -2809,6 +2845,7 @@ function Editor({ project, onBack, st }) {
         {!mob && (
           <div
             className="no-print"
+            onPointerDownCapture={handleUiPointerDownCapture}
             style={{
               width: 380,
               minWidth: 380,
@@ -2829,6 +2866,7 @@ function Editor({ project, onBack, st }) {
       {/* Mobile FAB + Sheet */}
       {mob && !panO && (
         <button
+          type="button"
           className="fps-btn no-print"
           onClick={addRm}
           style={{
@@ -2857,6 +2895,7 @@ function Editor({ project, onBack, st }) {
       {mob && (
         <div
           className="fps-sheet no-print"
+          onPointerDownCapture={handleUiPointerDownCapture}
           style={{
             position: "fixed",
             bottom: 0,
@@ -6258,6 +6297,7 @@ const bS = {
   fontWeight: 500,
   cursor: "pointer",
   letterSpacing: 0.5,
+  touchAction: "manipulation",
 };
 const iS = {
   background: "#2A2538",
@@ -6270,6 +6310,7 @@ const iS = {
   outline: "none",
   width: "100%",
   WebkitAppearance: "none",
+  touchAction: "manipulation",
 };
 const lS = {
   fontSize: 10,
@@ -6289,6 +6330,7 @@ const tS = {
   textTransform: "uppercase",
   cursor: "pointer",
   borderRadius: 4,
+  touchAction: "manipulation",
 };
 const tA2 = {
   background: "#845EC2",
