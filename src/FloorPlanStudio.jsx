@@ -879,14 +879,14 @@ function Editor({ project, onBack, st }) {
   const resetDrag = useCallback(() => {
     dragRef.current = null;
     dragPosRef.current = null;
-    setDragPos(null);
-    setGuides([]);
+    pidRef.current = null;
+    setDragPos((curr) => (curr == null ? curr : null));
+    setGuides((curr) => (curr.length ? [] : curr));
   }, []);
   const clearUiDragState = useCallback(
     (e) => {
-      if (!dragRef.current && pidRef.current == null) return;
+      if (!dragRef.current && pidRef.current == null && !dragPosRef.current) return;
       if (wrapR.current?.contains(e.target)) return;
-      pidRef.current = null;
       resetDrag();
     },
     [resetDrag],
